@@ -1,4 +1,4 @@
-package com.epam.concurrency.dao;
+package com.epam.concurrency.model;
 
 import java.io.Serializable;
 
