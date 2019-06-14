@@ -27,8 +27,8 @@ public class AccountGenerator {
 
     public static Account generateAccount() {
         return new Account(
-                getRandomNumberInRange(0, 999999999L),
+                getRandomNumberInRange(0, 999999L),
                 getRandomString(15),
-                getRandomNumberInRange(0, 999999999L));
+                getRandomNumberInRange(0, 999L));
     }
 }
