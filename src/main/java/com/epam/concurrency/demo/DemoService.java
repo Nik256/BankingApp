@@ -1,48 +1,37 @@
 package com.epam.concurrency.demo;
 
 import com.epam.concurrency.bank.Bank;
-import com.epam.concurrency.model.Account;
 import com.epam.concurrency.service.AccountService;
+import com.epam.concurrency.utils.TransferGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
 
 public class DemoService {
     private static final Logger logger = LogManager.getLogger(DemoService.class.getName());
-
-    private final static int THREAD_NUMBER = 20;
-    private final static int OPERATION_NUMBER = 1000;
+    private static final int ACCOUNTS_NUMBER = 10;
+    private static final int THREAD_NUMBER = 20;
+    private static final int TRANSACTION_NUMBER = 1000;
+    private AccountService accountService = AccountService.getInstance();
 
     public void execute() {
-        AccountService accountService = new AccountService();
-        Account from = accountService.getAccountById(151578L);
-        Account to = accountService.getAccountById(244658L);
-        logger.info(from);
-        logger.info(to);
-        logger.info("Final total balance: " + (from.getBalance() + to.getBalance()));
+        //accountService.deleteAccounts();
+        //accountService.createAccounts(ACCOUNTS_NUMBER);
+        accountService.showAccountsInfo();
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_NUMBER);
-        ReentrantLock locker = new ReentrantLock();
-
-        for (int i = 0; i < THREAD_NUMBER; i++) {
-            threadPool.execute(new Bank(accountService, locker));
-        }
-        threadPool.shutdown();
-
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_NUMBER);
+        IntStream.range(0, TRANSACTION_NUMBER).forEach(i -> executorService.submit(
+                new Bank(TransferGenerator.generate())));
+        executorService.shutdown();
         try {
-            threadPool.awaitTermination(1, TimeUnit.DAYS);
+            executorService.awaitTermination(1, TimeUnit.DAYS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
-
-        from = accountService.getAccountById(151578L);
-        to = accountService.getAccountById(244658L);
-        logger.info(from);
-        logger.info(to);
-        logger.info("Final total balance: " + (from.getBalance() + to.getBalance()));
+        accountService.showAccountsInfo();
     }
 }

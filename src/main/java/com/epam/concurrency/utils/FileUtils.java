@@ -1,6 +1,6 @@
 package com.epam.concurrency.utils;
 
-import com.epam.concurrency.model.Account;
+import com.epam.concurrency.dto.Account;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,7 +12,7 @@ import java.util.Objects;
 public class FileUtils {
     private static final Logger logger = LogManager.getLogger(FileUtils.class.getName());
 
-    public static void writeAccountToFile(Account account, String filename) {
+    public static synchronized void writeAccountToFile(Account account, String filename) {
         File file = new File(getAccountsFolderPath(), filename);
         try (FileOutputStream fileOutputStream = new FileOutputStream(file);
              ObjectOutputStream out = new ObjectOutputStream(fileOutputStream)) {
@@ -22,7 +22,7 @@ public class FileUtils {
         }
     }
 
-    public static Account readAccountFromFile(String filename) {
+    public static synchronized Account readAccountFromFile(String filename) {
         File file = new File(getAccountsFolderPath(), filename);
         Account account = null;
         try (FileInputStream fileInputStream = new FileInputStream(file);
@@ -34,14 +34,20 @@ public class FileUtils {
         return account;
     }
 
-    public static List<File> getAllFiles() {
+    public static synchronized List<File> getAllFiles() {
         File folder = new File(getAccountsFolderPath());
         return Arrays.asList(Objects.requireNonNull(folder.listFiles()));
     }
 
-    private static String getAccountsFolderPath() {
+    private static synchronized String getAccountsFolderPath() {
         return Thread.currentThread().getContextClassLoader()
                 .getResource("accounts")
                 .getPath();
+    }
+
+    public static void deleteAllFiles() {
+        for (File file : getAllFiles()) {
+            file.delete();
+        }
     }
 }

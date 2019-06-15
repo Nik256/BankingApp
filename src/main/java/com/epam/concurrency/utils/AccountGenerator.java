@@ -1,6 +1,6 @@
 package com.epam.concurrency.utils;
 
-import com.epam.concurrency.model.Account;
+import com.epam.concurrency.dto.Account;
 
 import java.util.Random;
 
