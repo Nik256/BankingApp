@@ -1,4 +1,4 @@
-package com.epam.concurrency.bank;
+package com.epam.concurrency.main;
 
 import com.epam.concurrency.demo.DemoService;
 

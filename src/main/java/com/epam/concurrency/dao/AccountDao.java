@@ -26,12 +26,12 @@ public class AccountDao {
         return accountList;
     }
 
-    public void save(Account account) {
-        FileUtils.writeAccountToFile(account, account.getId().toString());
+    public void updateAccountList() {
+        this.accountList = getAll();
     }
 
-    public Account get(Long id) {
-        return FileUtils.readAccountFromFile(id.toString());
+    public void save(Account account) {
+        FileUtils.writeAccountToFile(account, account.getId().toString());
     }
 
     public List<Account> getAll() {

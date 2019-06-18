@@ -1,6 +1,7 @@
 package com.epam.concurrency.demo;
 
 import com.epam.concurrency.bank.Bank;
+import com.epam.concurrency.counter.TransactionCounter;
 import com.epam.concurrency.service.AccountService;
 import com.epam.concurrency.utils.TransferGenerator;
 import org.apache.logging.log4j.LogManager;
@@ -19,19 +20,23 @@ public class DemoService {
     private AccountService accountService = AccountService.getInstance();
 
     public void execute() {
-        //accountService.deleteAccounts();
-        //accountService.createAccounts(ACCOUNTS_NUMBER);
+//        accountService.deleteAccounts();
+//        accountService.createAccounts(ACCOUNTS_NUMBER);
         accountService.showAccountsInfo();
 
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_NUMBER);
         IntStream.range(0, TRANSACTION_NUMBER).forEach(i -> executorService.submit(
                 new Bank(TransferGenerator.generate())));
+
         executorService.shutdown();
         try {
-            executorService.awaitTermination(1, TimeUnit.DAYS);
+            executorService.awaitTermination(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             logger.error(e);
         }
         accountService.showAccountsInfo();
+        logger.info("Overall number of transactions: " + TransactionCounter.overall.get());
+        logger.info("Skipped transactions: " + TransactionCounter.skipped.get());
+        logger.info("Succeed transactions: " + TransactionCounter.succeed.get());
     }
 }

@@ -1,5 +1,6 @@
 package com.epam.concurrency.service;
 
+import com.epam.concurrency.counter.TransactionCounter;
 import com.epam.concurrency.dao.AccountDao;
 import com.epam.concurrency.dto.Account;
 import com.epam.concurrency.dto.Transfer;
@@ -33,8 +34,9 @@ public class TransactionService {
         if ((account.getBalance() - amount) > 0) {
             account.setBalance(account.getBalance() - amount);
         } else {
-            throw new InsufficientFundsException();
+            throw new InsufficientFundsException("Insufficient funds");
         }
+        TransactionCounter.succeed.getAndIncrement();
         accountDao.save(account);
     }
 
@@ -49,12 +51,14 @@ public class TransactionService {
         lock1.lock();
         lock2.lock();
         try {
-            logger.info(Thread.currentThread().getName() + " / " + ": " + fromAccount + " --" + amount + "--> " + toAccount);
+            logger.info(Thread.currentThread().getName() + " / "+ fromAccount + " --" + amount + "--> " + toAccount);
             withdraw(fromAccount, amount);
             deposit(toAccount, amount);
         } catch (InsufficientFundsException e) {
-            logger.error(e);
+            TransactionCounter.skipped.getAndIncrement();
+            logger.info(e.getMessage());
         } finally {
+            TransactionCounter.overall.getAndIncrement();
             lock2.unlock();
             lock1.unlock();
         }

@@ -11,9 +11,10 @@ import java.util.Objects;
 
 public class FileUtils {
     private static final Logger logger = LogManager.getLogger(FileUtils.class.getName());
+    private static final String FOLDER_PATH = "src/main/resources/accounts";
 
-    public static synchronized void writeAccountToFile(Account account, String filename) {
-        File file = new File(getAccountsFolderPath(), filename);
+    public static void writeAccountToFile(Account account, String filename) {
+        File file = new File(FOLDER_PATH, filename);
         try (FileOutputStream fileOutputStream = new FileOutputStream(file);
              ObjectOutputStream out = new ObjectOutputStream(fileOutputStream)) {
             out.writeObject(account);
@@ -22,8 +23,8 @@ public class FileUtils {
         }
     }
 
-    public static synchronized Account readAccountFromFile(String filename) {
-        File file = new File(getAccountsFolderPath(), filename);
+    public static Account readAccountFromFile(String filename) {
+        File file = new File(FOLDER_PATH, filename);
         Account account = null;
         try (FileInputStream fileInputStream = new FileInputStream(file);
              ObjectInputStream in = new ObjectInputStream(fileInputStream)) {
@@ -34,15 +35,9 @@ public class FileUtils {
         return account;
     }
 
-    public static synchronized List<File> getAllFiles() {
-        File folder = new File(getAccountsFolderPath());
+    public static List<File> getAllFiles() {
+        File folder = new File(FOLDER_PATH);
         return Arrays.asList(Objects.requireNonNull(folder.listFiles()));
-    }
-
-    private static synchronized String getAccountsFolderPath() {
-        return Thread.currentThread().getContextClassLoader()
-                .getResource("accounts")
-                .getPath();
     }
 
     public static void deleteAllFiles() {
