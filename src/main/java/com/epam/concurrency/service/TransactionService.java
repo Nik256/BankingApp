@@ -44,7 +44,7 @@ public class TransactionService {
         Account fromAccount = transfer.getFrom();
         Account toAccount = transfer.getTo();
         Long amount = transfer.getAmount();
-        // Preventing deadlock
+        // Preventing deadlock using lock ordering
         Lock lock1 = fromAccount.getId() < toAccount.getId() ? fromAccount.getLock() : toAccount.getLock();
         Lock lock2 = fromAccount.getId() < toAccount.getId() ? toAccount.getLock() : fromAccount.getLock();
 
